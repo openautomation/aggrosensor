@@ -1,8 +1,12 @@
-#include "../SensorEntry.h"
+#pragma once
 
-float read_Tmp_Env(SensorEntry *config){
-  char pinDigital = config->pins[0];
-  char pinAnalog = config->pins[1];
+#include "../SensorEntry.h"
+#include <Arduino.h>
+
+int read_tmp_env(const struct SensorEntry *entry)
+{
+  char pinDigital = entry->pins[0];
+  char pinAnalog = entry->pins[1];
   pinMode(pinDigital, OUTPUT);
   digitalWrite(pinAnalog, LOW); 
   digitalWrite(pinDigital, HIGH);
@@ -12,5 +16,7 @@ float read_Tmp_Env(SensorEntry *config){
   v_out *= .0048; 
   v_out *= 1000; 
   float temp = 0.0512 * v_out -20.5128;
-  return temp;
-} 
+  
+  entry->packageDataMessage(temp);
+  return 0;  //no error
+}
