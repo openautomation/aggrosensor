@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Globals.h"
+
 // A queue/stack which doesn't use heap memory.
 // You are cautioned against storing objects in here which use dynamic memory.
 template <class T, unsigned int SIZE>
@@ -25,7 +27,7 @@ public:
   // Returns NULL if the queue is full.
   T* push() {
     if (isFull()) {
-        Serial.print("Error: buffer overflow\n");
+        printlnError("buffer overflow");
         return NULL;
     }
    
@@ -48,7 +50,7 @@ public:
   // Use the other popFirst() if you're afraid of this happening.
   T* popFirst() {
     if (isEmpty()) {
-      Serial.print("Error: buffer underflow\n");
+      printlnError("buffer underflow");
       return NULL;
     }
 
@@ -72,7 +74,7 @@ public:
   // Use the other popLast() if you're afraid of this happening.
   T* popLast() {
     if (isEmpty()) {
-        Serial.print("Error: buffer underflow\n");
+        printlnError("buffer underflow");
         return NULL;
     }
 

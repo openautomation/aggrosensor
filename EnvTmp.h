@@ -1,7 +1,4 @@
-#pragma once
-
-#include "../SensorEntry.h"
-#include <Arduino.h>
+#include "SensorEntry.h"
 
 int read_tmp_env(const struct SensorEntry *entry)
 {
