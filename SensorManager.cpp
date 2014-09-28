@@ -1,3 +1,4 @@
+#include <Wire.h>
 #include "SensorManager.h"
 #include "SensorProfiles.h"
 
@@ -49,6 +50,8 @@ void SensorManager::schedule(SensorEntry *entry) {
 }
 
 void SensorManager::schedule(SensorEntry *entry, unsigned long msTimeToScheduleFrom) {
+  if (entry->isEmpty() || entry->isDisabled()) return;  // entry is disabled
+
   if (events.isFull()) {
     printlnError("Scheduler full");
     return;

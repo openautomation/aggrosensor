@@ -3,6 +3,10 @@
 #include <Arduino.h>
 #include <avr/eeprom.h>
 
+// voltage against which analog
+extern float ReferenceVoltage;
+#define ReferenceVoltageMultiplier (ReferenceVoltage / 1023.0)  // divide by Arduino ADC max value
+
 // macros for writing status messages in JSON to serial
 #define printFlash(s, type)        \
   Serial.print(F("{" type ":\'")); \

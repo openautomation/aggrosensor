@@ -5,7 +5,7 @@
 // uses memcpy, so T should not have a destructor!
 template <class T, unsigned int SIZE>
 class SortedArray {
-public:
+protected:
   unsigned int count;
   T array[SIZE];
   

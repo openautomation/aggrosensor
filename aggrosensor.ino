@@ -15,6 +15,7 @@
 #include "SensorEntry.h"
 #include "SensorManager.h"
 
+#include <Wire.h>
 #include <JsonGenerator.h>
 #include <JsonParser.h>
 
@@ -82,27 +83,45 @@ void setEntry(ArduinoJson::Parser::JsonValue &pairs)
   if (period.success()) {
     const char *sPeriod = (char*)period;
     entry.msMeasurementPeriod = atol(sPeriod);
-    if (*sPeriod == '-' || entry.msMeasurementPeriod == 0) {
-      printlnError("msMeasurementPeriod must be between 1 and 4 billion");
+    if (*sPeriod == '-' || entry.msMeasurementPeriod > 1209600000) {
+      printlnError("msMeasurementPeriod must be between 0 and 1.2 billion milliseconds; 0 disables measurement");
       return;
     }
   }
   
   JsonValue pins = pairs["pins"];
   if (pins.success()) {
+    if (pins[NUM_PINS].success()) {
+      printlnError("only up to 4 pins are supported");
+      return;
+    }
     for (int i = 0; i < NUM_PINS; i++) {
-      JsonValue pin = pins[i];
-      if (pin.success()) entry.pins[i] = (char)(long)pin;
-      else entry.pins[i] = -1;      //set unused pins to -1
+      entry.pins[i] = -1;               //set unused pins to -1
+      if (pins[i].success()) {
+        if (const char *sPin = pins[i]) {
+          // accept a nonnegative integer, possibly starting with 'A'; A0 = 14
+          if (sPin[0] >= '0' && sPin[0] <= '9') {
+            entry.pins[i] = atoi(sPin);
+          }
+          else if (sPin[0] == 'A') {
+            entry.pins[i] = 14 + atoi(sPin + 1);
+          }
+          else {
+            printlnError("pins must be nonnegative integers, and may optionally begin with A");
+            return;
+          }
+        }
+      }
     }
   }
+  
+  // if something important changed, purge events previously scheduled and schedule new events  
+  bool reschedule = (entry.msMeasurementPeriod != managerEntry.msMeasurementPeriod || entry.func != managerEntry.func);
 
   memcpy(&managerEntry, &entry, sizeof(entry));
   _manager.writeToEEPROM();
 
-  // if something important changed, purge events previously scheduled and schedule new events  
-  if (entry.msMeasurementPeriod != managerEntry.msMeasurementPeriod ||
-      entry.func != managerEntry.func)
+  if (reschedule)
   {
     _manager.removeEvents(index);
     measureAndSchedule(index);
@@ -139,6 +158,7 @@ void processCommand(char *buf)
   else if (!strcmp(cmd, "removeEntry")) {
     int index = int(it.value());
     _manager.removeEntry(index);
+    printlnStatus("setEntry succeeded");
   }
   else if (!strcmp(cmd, "setEntry")) {
     if (!param.isObject()) {
@@ -147,6 +167,7 @@ void processCommand(char *buf)
     }
     //Serial.println("setEntry");
     setEntry(param);
+    printlnStatus("setEntry succeeded");
   }
   else {
     printlnError("Unknown Command");
@@ -233,6 +254,7 @@ void createDebugEntries() {
 void setup()
 {
   analogReference(DEFAULT);
+  ReferenceVoltage = 5.0;
   Serial.begin(38400);
   printlnStatus("AggroSensor version 0 started");
 

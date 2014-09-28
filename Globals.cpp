@@ -1,5 +1,7 @@
 #include "Globals.h"
 
+float ReferenceVoltage = 5.0;  // should be set in setup() depending on board and analogReference type
+
 /*void printError(const __FlashStringHelper *s) {
   Serial.print(F("{error: "));
   Serial.print(s);

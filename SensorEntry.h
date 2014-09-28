@@ -11,9 +11,9 @@ const int NUM_PINS = 4;
 // All the info for a sensor plugged into the arduino
 struct SensorEntry {
   char label[16];                       // label applied to data from this sensor
+  unsigned long msMeasurementPeriod;    // measurement period in milliseconds
   char pins[NUM_PINS];                  // some number of pins used by the sensor
                                         // (order is dictated the sensor's read function)
-  unsigned long msMeasurementPeriod;    // measurement period in milliseconds
   //char sensorID[MAX_SENSOR_ID_LENGTH];  // the "class" type
   SensorMeasurementFunc func;           // the sensor "type", this will be a function in gSensorFuncMap
                                         // this field is PURPOSELY LAST to simplify writing to EEPROM
