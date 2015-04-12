@@ -11,7 +11,7 @@
 
 const SensorFunctionMapEntry SensorManager::sensorFunctionMap[] = {
   {"ENV-TMP",         read_tmp_env},
-  {"DFROBOT-PH",      read_DFRobot_pH_Sensor},
+  {"DFROBOT-PH",      read_DFRobot_pH},
   {"MANYLABS-PH",     read_ManyLabs_pH}
 };
 

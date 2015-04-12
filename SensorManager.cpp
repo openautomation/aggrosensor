@@ -114,6 +114,7 @@ struct EEPROMHeader {
 };
 
 void SensorManager::writeToEEPROM() {
+  /*
   EEPROMHeader h;
   int nextEmptyByte = offsetof(EEPROMHeader, entries);
   printlnDebug("AggroSensor writing settings to EEPROM...");
@@ -130,10 +131,11 @@ void SensorManager::writeToEEPROM() {
   Serial.print("{debug:\'AggroSensor settings (");
   Serial.print(h.numEntries);
   Serial.print(" entries) written to EEPROM.\'}\n");
+  */
 }
 
 void SensorManager::readFromEEPROM() {
-  EEPROMHeader current, test;
+  /*EEPROMHeader current, test;
   memcpyFromEEPROM(0, &current, sizeof(current));
   
   // check to see if valid settings are saved in EEPROM
@@ -162,5 +164,6 @@ void SensorManager::readFromEEPROM() {
   Serial.print("{status:\'AggroSensor settings (");
   Serial.print(numEntriesRead);
   Serial.print(" entries) loaded from EEPROM.\'}\n");
+  */
 };
 

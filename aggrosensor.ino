@@ -25,6 +25,9 @@ using namespace ArduinoJson::Parser;
 // globals
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO put in ifdef based on board type
+const int A0_PIN_OFFSET = 14;  // arduino uno
+
 SensorManager _manager;
 
 // serial input
@@ -44,7 +47,6 @@ void measureAndSchedule(int index) {
   }
   _manager.schedule(entry);
 }
-
 
 void setEntry(ArduinoJson::Parser::JsonValue &pairs)
 {
@@ -99,12 +101,13 @@ void setEntry(ArduinoJson::Parser::JsonValue &pairs)
       entry.pins[i] = -1;               //set unused pins to -1
       if (pins[i].success()) {
         if (const char *sPin = pins[i]) {
-          // accept a nonnegative integer, possibly starting with 'A'; A0 = 14
+          // accept a nonnegative integer, possibly starting with 'A'
           if (sPin[0] >= '0' && sPin[0] <= '9') {
             entry.pins[i] = atoi(sPin);
           }
+          // which pin A0 corresponds to depends on board
           else if (sPin[0] == 'A') {
-            entry.pins[i] = 14 + atoi(sPin + 1);
+            entry.pins[i] = atoi(sPin + 1) + A0_PIN_OFFSET;
           }
           else {
             printlnError("pins must be nonnegative integers, and may optionally begin with A");
@@ -211,6 +214,20 @@ void runScheduledEvents()
       // error
     }
   }
+}
+
+// finds the first whitespace character and sets it to null
+// returns the index of the null character
+int tokenizeOneWord(char *buf) {
+  int i = -1;
+  char c;
+  do {
+    i++;
+    c = buf[i];
+  } while(c != '\0' && c != ' ' && c != '\t' && c != '\n' && c != '\r');
+  
+  buf[i] = '\0';
+  return i;
 }
 
 void handleSerialInput()

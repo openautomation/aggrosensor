@@ -4,8 +4,8 @@
 
 #pragma once
 
-const int NUM_SENSOR_ENTRIES = 16;
-const int NUM_SCHEDULED_EVENTS = 32;
+const int NUM_SENSOR_ENTRIES = 8;
+const int NUM_SCHEDULED_EVENTS = NUM_SENSOR_ENTRIES*2;
 
 typedef unsigned long Timestamp;
 
