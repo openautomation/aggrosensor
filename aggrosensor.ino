@@ -48,6 +48,32 @@ void measureAndSchedule(int index) {
   _manager.schedule(entry);
 }
 
+// stores pin number in result, or -1 if pin number was empty
+// returns false if an invalid pin number was provided
+boolean getPinFromJson(ArduinoJson::Parser::JsonValue jsonValue, char &result)
+{
+  const char *sPin;
+  if (jsonValue.success() && (sPin = jsonValue)) {
+    // accept a nonnegative integer, possibly starting with 'A'
+    if (sPin[0] >= '0' && sPin[0] <= '9') {
+      result = atoi(sPin);
+    }
+    // which pin A0 corresponds to depends on board
+    else if (sPin[0] == 'A') {
+      result = atoi(sPin + 1) + A0_PIN_OFFSET;
+    }
+    else {
+      printlnError("pins must be nonnegative integers, and may optionally begin with A");
+      return false;
+    }
+  }
+  else {
+    result = -1;
+  }
+  
+  return true;
+}
+
 void setEntry(ArduinoJson::Parser::JsonValue &pairs)
 {
   // index is required
@@ -99,21 +125,8 @@ void setEntry(ArduinoJson::Parser::JsonValue &pairs)
     }
     for (int i = 0; i < NUM_PINS; i++) {
       entry.pins[i] = -1;               //set unused pins to -1
-      if (pins[i].success()) {
-        if (const char *sPin = pins[i]) {
-          // accept a nonnegative integer, possibly starting with 'A'
-          if (sPin[0] >= '0' && sPin[0] <= '9') {
-            entry.pins[i] = atoi(sPin);
-          }
-          // which pin A0 corresponds to depends on board
-          else if (sPin[0] == 'A') {
-            entry.pins[i] = atoi(sPin + 1) + A0_PIN_OFFSET;
-          }
-          else {
-            printlnError("pins must be nonnegative integers, and may optionally begin with A");
-            return;
-          }
-        }
+      if (! getPinFromJson(pins[i], entry.pins[i])) {
+        return;  // erroneous pin number? abort
       }
     }
   }
@@ -171,6 +184,52 @@ void processCommand(char *buf)
     //Serial.println("setEntry");
     setEntry(param);
     printlnStatus("setEntry succeeded");
+  }
+  // example: {writeA: {pin:14, value:0}}
+  else if (!strcmp(cmd, "writeA")) {
+    JsonValue jsonPin = param["pin"];
+    JsonValue jsonValue = param["value"];
+    if (!jsonPin.success() || !jsonValue.success()) {
+      printlnError("missing pin or value");
+      return;
+    }
+    
+    char pin;
+    if (! getPinFromJson(jsonPin, pin)) return;
+    if (pin == -1) {
+      printlnError("pin number bad or missing");
+      return;
+    }
+    
+    // TODO: error check value
+    const char *sValue = jsonValue;
+    int value = atoi(sValue);
+    
+    pinMode(pin, OUTPUT);
+    analogWrite(pin, value);
+  }
+  // TODO: combine digital and analog once they work
+  else if (!strcmp(cmd, "writeD")) {
+    JsonValue jsonPin = param["pin"];
+    JsonValue jsonValue = param["value"];
+    if (!jsonPin.success() || !jsonValue.success()) {
+      printlnError("missing pin or value");
+      return;
+    }
+    
+    char pin;
+    if (! getPinFromJson(jsonPin, pin)) return;
+    if (pin == -1) {
+      printlnError("pin number bad or missing");
+      return;
+    }
+    
+    // TODO: error check value
+    const char *sValue = jsonValue;
+    int value = atoi(sValue);
+    
+    pinMode(pin, OUTPUT);
+    analogWrite(pin, value);
   }
   else {
     printlnError("Unknown Command");
