@@ -16,7 +16,7 @@ Sensor configuration and aggregation code.
 - {getEntry:\<index\>}
 - {removeEntry:\<index\>}
 - {setEntry:{\<one or more sensor entry key-value pairs\>}}
-- 
+
 ####Temporary Commands for writing to pins
 - {writeD:{pin:14, value:1}}
 - {writeA:{pin:14, value:1}}
