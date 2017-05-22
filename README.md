@@ -1,7 +1,7 @@
 aggrosensor
 ===========
 
-Sensor configuration and aggregation code.
+Arduino program for runtime sensor configuration and aggregation. Speaks a json protocol; examples below.
 
 -----------
 
